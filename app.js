@@ -12,7 +12,15 @@ var budgetController = (function () {
         this.value = value;
     }
 
+    var calculateTotal=function(type){
+        var sum=0;
 
+        data.allItem[type].forEach(function(cur){
+            sum+=cur.value;
+        });
+        data.totals[type]=sum;
+        
+    };
 
     var data = {
         allItem:
@@ -25,7 +33,11 @@ var budgetController = (function () {
         totals: {
             exp: 0,
             inc: 0
-        }
+        },
+
+        budget:0,
+
+        percentage:-1
 
 
 
@@ -63,6 +75,32 @@ var budgetController = (function () {
             data.allItem[type].push(newItem);
             return newItem;
         },
+        calculateBudget:function(){
+            //1.sum of income and expense
+            calculateTotal('inc');
+            calculateTotal('exp');
+            
+            //2.calcualte budeget: income-expense
+            data.budget=data.totals.inc-data.totals.exp;
+
+            //3.calculate the percentage of income we spent
+           if(data.totals.inc>0){
+           data.percentage=Math.round((data.totals.exp/data.totals.inc)*100);
+           }else{
+               data.percentage=-1;
+           }
+
+        },
+
+        getBudget:function(){
+            return {
+                budeget:data.budget,
+                totalInc:data.totals.inc,
+                totalExp:data.totals.exp,
+                percentage:data.percentage
+            }; 
+        },
+
         // test method 
         testing: function () {
             console.log(data);
@@ -179,16 +217,19 @@ var controller = (function (budgetCtrl, UICtrl) {
     
     var updateBudget=function(){
         //1. calculate budget
+        budgetCtrl.calculateBudget();
 
-        //2. return budget
+         //2. return budget
+        var budget=budgetCtrl.getBudget();
 
         //3/display budget on ui
+        console.log(budget);
 
     }
 
 
     var ctrlAddItem = function () {
-
+ 
         var input, newItem;
         // to do list
 
